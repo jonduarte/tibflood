@@ -9,6 +9,16 @@ describe Bencode do
     expect(Bencode.decode('i3e')).to eq(3)
   end
 
+  it 'parses negative integer' do
+    expect(Bencode.decode('i-3e')).to eq(-3)
+  end
+
+  it 'does not parses integer with padding 0' do
+    expect { Bencode.decode('i-03e') }.to raise_error(Parslet::ParseFailed)
+    expect { Bencode.decode('i03e') }.to raise_error(Parslet::ParseFailed)
+    expect(Bencode.decode('i0e')).to eq(0)
+  end
+
   it 'parses simple lists' do
     expression = 'l4:spame'
     expect(Bencode.decode('l4:spame')).to eq(["spam"])

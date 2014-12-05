@@ -22,7 +22,7 @@ class Bencode
     end
 
     rule(:integer) do
-      (str('i') >> (digit.repeat(1)).as(:integer) >> str('e'))
+      (str('i') >> (str('-').maybe >> match['1-9'] >> digit.repeat | str('0')).as(:integer) >> str('e'))
     end
 
     rule(:letter) do
