@@ -1,4 +1,4 @@
-require 'bencode'
+require 'tibflood'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
