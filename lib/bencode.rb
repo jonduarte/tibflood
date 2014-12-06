@@ -17,16 +17,12 @@ class Bencode
         str(':') >>
         dynamic { |_, context|
           max = context.captures[:size].to_i
-          letter.repeat(max, max)
+          any.repeat(max, max)
         }.as(:string)
     end
 
     rule(:integer) do
       (str('i') >> (str('-').maybe >> match['1-9'] >> digit.repeat | str('0')).as(:integer) >> str('e'))
-    end
-
-    rule(:letter) do
-      match('[a-zA-Z\.-]')
     end
 
     rule(:digit) do

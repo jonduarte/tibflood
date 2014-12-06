@@ -5,6 +5,11 @@ describe Bencode do
     expect(Bencode.decode('4:spam')).to eq("spam")
   end
 
+  it 'parses utf-8 strings' do
+    expect(Bencode.decode('3:olá')).to eq("olá")
+    expect(Bencode.decode('35:RubyKaigi2009のテーマは、「変わる／変える」です。 前回の')).to eq('RubyKaigi2009のテーマは、「変わる／変える」です。 前回の')
+  end
+
   it 'parses integer' do
     expect(Bencode.decode('i3e')).to eq(3)
   end
