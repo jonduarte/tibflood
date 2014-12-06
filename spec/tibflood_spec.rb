@@ -28,4 +28,17 @@ describe Tibflood do
   it 'has multiple files' do
     expect(@torrent.files).to be_an(Array)
   end
+
+  it 'creates sha1 hash to info' do
+    expect(@torrent.info_hash.bytesize).to eq(20)
+  end
+
+  it 'peer_id is a 20 byte long' do
+    expect(@torrent.peer_id.bytesize).to eq(20)
+  end
+
+  it 'encode tracker url' do
+    url = "udp://tracker.publicbt.com:80/announce?info_hash=%05%FDS%12%BB%7B9%A0%EEq%E2%8Dt%AD%DD%10%ADe%FF%98&peer_id=6742ed701b6c85f001e7&port=6881&uploaded=0&downloaded=0&left=9337569280&event=stopped"
+    expect(@torrent.tracker_url).to eq(url)
+  end
 end
