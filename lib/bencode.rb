@@ -7,6 +7,21 @@ class Bencode
     tree.eval
   end
 
+  def self.encode(value)
+    case value
+    when String
+      "#{value.size}:#{value}"
+    when Fixnum
+      "i#{value}e"
+    when Array
+      encoded = value.collect { |v| encode(v) }.join
+      "l#{encoded}e"
+    when Hash
+      encoded = value.collect { |k, v| encode(k) + encode(v) }.join
+      "d#{encoded}e"
+    end
+  end
+
   class Parser < Parslet::Parser
     rule(:expression) do
       dictionary | list | string | integer
