@@ -38,7 +38,8 @@ describe Tibflood do
   end
 
   it 'encode tracker url' do
-    url = "udp://tracker.publicbt.com:80/announce?info_hash=%05%FDS%12%BB%7B9%A0%EEq%E2%8Dt%AD%DD%10%ADe%FF%98&peer_id=6742ed701b6c85f001e7&port=6881&uploaded=0&downloaded=0&left=9337569280&event=stopped"
+    peer_id = @torrent.peer_id
+    url = "udp://tracker.publicbt.com:80/announce?info_hash=%05%FDS%12%BB%7B9%A0%EEq%E2%8Dt%AD%DD%10%ADe%FF%98&peer_id=#{peer_id}&port=6881&uploaded=0&downloaded=0&left=9337569280&event=stopped"
     expect(@torrent.tracker_url).to eq(url)
   end
 end

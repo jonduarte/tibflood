@@ -50,7 +50,7 @@ class Tibflood
   end
 
   def peer_id
-    SecureRandom.hex(10)
+    @peer_id ||= SecureRandom.hex(10)
   end
 
   def port
