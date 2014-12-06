@@ -32,7 +32,7 @@ class Bencode
         str(':') >>
         dynamic { |_, context|
           max = context.captures[:size].to_i
-          any.repeat(max, max)
+          max == 0 ?  str("") : any.repeat(max, max)
         }.as(:string)
     end
 

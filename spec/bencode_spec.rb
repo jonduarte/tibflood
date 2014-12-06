@@ -6,6 +6,10 @@ describe Bencode do
       expect(Bencode.decode('4:spam')).to eq("spam")
     end
 
+    it 'parses empty string' do
+      expect(Bencode.decode('0:')).to eq("")
+    end
+
     it 'parses utf-8 strings' do
       expect(Bencode.decode('3:olá')).to eq("olá")
       expect(Bencode.decode('35:RubyKaigi2009のテーマは、「変わる／変える」です。 前回の')).to eq('RubyKaigi2009のテーマは、「変わる／変える」です。 前回の')
@@ -61,6 +65,10 @@ describe Bencode do
       expect(Bencode.encode('olá')).to eq('3:olá')
     end
 
+    it 'encode null string' do
+      expect(Bencode.encode('')).to eq('0:')
+    end
+
     it 'encode an integer' do
       expect(Bencode.encode(3)).to eq('i3e')
     end
@@ -72,7 +80,8 @@ describe Bencode do
 
     it 'encode lists with string and integer' do
       expression = 'l4:spam4:eggsi40ee'
-      expect(Bencode.encode([ "spam", "eggs", 40 ])).to eq(expression)
+      expect(Bencode.encode(["spam", "eggs", 40 ])).to eq(expression)
+      expect(Bencode.encode(['spam', 40, ''])).to eq('l4:spami40e0:e')
     end
 
     it 'parses dictionary' do
