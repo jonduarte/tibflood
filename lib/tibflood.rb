@@ -6,6 +6,9 @@ require 'securerandom'
 require 'uri'
 
 class Tibflood
+  TBID      = 'TB'
+  TBVERSION = '0001'
+
   def self.load(filename)
     # We have to open it as binary in order to parse
     # torrent info correctly
@@ -50,7 +53,7 @@ class Tibflood
   end
 
   def peer_id
-    @peer_id ||= SecureRandom.hex(10)
+    @peer_id ||= "-#{TBID}#{TBVERSION}-#{ 12.times.collect { rand(9) }.join }"
   end
 
   def port
