@@ -42,4 +42,12 @@ describe Tibflood do
     url = "udp://tracker.publicbt.com:80/announce?info_hash=%05%FDS%12%BB%7B9%A0%EEq%E2%8Dt%AD%DD%10%ADe%FF%98&peer_id=#{peer_id}&port=6881&uploaded=0&downloaded=0&left=9337569280&event=stopped"
     expect(@torrent.tracker_url).to eq(url)
   end
+
+  it 'parse peers' do
+    peers = "\x7F\x00\x00\x01\x1A\xE1\n\x00\x00\x01\x1A\xE2".force_encoding('BINARY')
+    @torrent.add_peers(peers)
+
+    normalized_peers = ["127.0.0.1:6881", "10.0.0.1:6882"]
+    expect(@torrent.peers).to eq(normalized_peers)
+  end
 end

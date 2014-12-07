@@ -23,11 +23,20 @@ class Tibflood
     @bencoded = bencoded
   end
 
-  attr_reader :bencoded
+  attr_reader :bencoded, :peers
   private :bencoded
 
   def announce
     bencoded['announce']
+  end
+
+  def add_peers(binary)
+    @peers ||= binary
+      .split("")
+      .each_slice(6)
+      .collect(&:join)
+      .collect { |s| s.unpack('C4n') }
+      .collect { |a| "#{a[0..3].join('.')}:#{a[-1]}" }
   end
 
   def tracker_url
