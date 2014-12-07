@@ -5,8 +5,10 @@ require 'securerandom'
 require 'uri'
 
 class Tibflood
-  TBID      = 'TB'
-  TBVERSION = '0001'
+  TBID       = 'TB'
+  TBVERSION  = '0001'
+  PEER_BYTES = 6
+  PEER_SIZE  = 5
 
   attr_reader :bencoded, :peers
 
@@ -15,12 +17,11 @@ class Tibflood
   end
 
   def add_peers(binary)
+    size = binary.bytesize / PEER_BYTES
     @peers ||= binary
-      .split("")
-      .each_slice(6)
-      .collect(&:join)
-      .collect { |s| s.unpack('C4n') }
-      .collect { |a| "#{a[0..3].join('.')}:#{a[-1]}" }
+      .unpack('C4n' * size)
+      .each_slice(PEER_SIZE)
+      .collect { |a| "%s.%s.%s.%s:%s" % a }
   end
 
   def tracker_url
