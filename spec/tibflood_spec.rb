@@ -14,7 +14,7 @@ describe Tibflood do
   end
 
   it 'has info' do
-    expect(@torrent['info']).to be_a(Hash)
+    expect(@torrent.info).to be_a(Hash)
   end
 
   it 'has a name' do

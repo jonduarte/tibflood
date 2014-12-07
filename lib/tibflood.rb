@@ -1,6 +1,5 @@
 require 'digest/sha1'
 require 'bencode'
-require 'forwardable'
 require 'digest/sha1'
 require 'securerandom'
 require 'uri'
@@ -9,25 +8,10 @@ class Tibflood
   TBID      = 'TB'
   TBVERSION = '0001'
 
-  def self.load(filename)
-    # We have to open it as binary in order to parse
-    # torrent info correctly
-    contents = File.open(filename, 'rb') { |io| io.read }
-    new(Bencode.decode(contents))
-  end
-
-  extend Forwardable
-  def_delegator :@bencoded, :[]
+  attr_reader :bencoded, :peers
 
   def initialize(bencoded)
     @bencoded = bencoded
-  end
-
-  attr_reader :bencoded, :peers
-  private :bencoded
-
-  def announce
-    bencoded['announce']
   end
 
   def add_peers(binary)
@@ -84,7 +68,6 @@ class Tibflood
   def name
     bencoded['info']['name']
   end
-  alias :to_s :name
 
   def piece_length
     bencoded['info']['piece length']
@@ -96,5 +79,13 @@ class Tibflood
 
   def files
     bencoded['info']['files']
+  end
+
+  def announce
+    bencoded['announce']
+  end
+
+  def self.load(filename)
+    new(Bencode.decode(File.read(filename, { mode: 'rb' })))
   end
 end
