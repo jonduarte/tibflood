@@ -12,6 +12,12 @@ class Tibflood
 
   attr_reader :bencoded, :peers
 
+  def self.load(filename)
+    content = File.read(filename, { mode: 'rb' })
+    decoded = Bencode.decode(content)
+    new(decoded)
+  end
+
   def initialize(bencoded)
     @bencoded = bencoded
   end
@@ -21,7 +27,7 @@ class Tibflood
     @peers ||= binary
       .unpack('C4n' * size)
       .each_slice(PEER_SIZE)
-      .collect { |a| "%s.%s.%s.%s:%s" % a }
+      .collect { |peer_info| "%s.%s.%s.%s:%s" % peer_info }
   end
 
   def tracker_url
@@ -84,9 +90,5 @@ class Tibflood
 
   def announce
     bencoded['announce']
-  end
-
-  def self.load(filename)
-    new(Bencode.decode(File.read(filename, { mode: 'rb' })))
   end
 end
