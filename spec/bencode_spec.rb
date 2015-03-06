@@ -17,6 +17,7 @@ describe Bencode do
 
     it 'parses integer' do
       expect(Bencode.decode('i3e')).to eq(3)
+      expect(Bencode.decode('i1371247048e')).to eq(1371247048)
     end
 
     it 'parses negative integer' do
@@ -24,9 +25,11 @@ describe Bencode do
     end
 
     it 'does not parses integer with padding 0' do
-      expect { Bencode.decode('i-03e') }.to raise_error(Parslet::ParseFailed)
-      expect { Bencode.decode('i03e') }.to raise_error(Parslet::ParseFailed)
+      expect { Bencode.decode('i-03e') }.to raise_error(ArgumentError)
+      expect { Bencode.decode('i03e') }.to raise_error(ArgumentError)
       expect(Bencode.decode('i0e')).to eq(0)
+      expect(Bencode.decode('i10e')).to eq(10)
+      expect(Bencode.decode('i-12001e')).to eq(-12001)
     end
 
     it 'parses simple lists' do
@@ -57,6 +60,13 @@ describe Bencode do
     it 'parses complex structures' do
       expression = 'd9:publisher3:bob17:publisher-webpage15:www.example.com18:publisher.location4:homee'
       expect(Bencode.decode(expression)).to eq({ "publisher" => "bob", "publisher-webpage" => "www.example.com", "publisher.location" => "home" })
+    end
+
+    it 'parses nested hash' do
+      hash = { 'john' => { 'doe' => { 'jane' => ['doe', 'jackson', 12] }, 'lisa' => [12, 'doe'] }, 'bart' => 'mister' }
+      expression = Bencode.encode(hash)
+
+      expect(Bencode.decode(expression)).to eq(hash)
     end
   end
 

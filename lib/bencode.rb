@@ -1,10 +1,8 @@
-require 'parslet'
+require 'strscan'
 
 class Bencode
   def self.decode(value)
-    tree = Parser.new.parse(value)
-    tree = Transformer.new.apply(tree)
-    tree.eval
+    Parser.new(value).parse
   end
 
   def self.encode(value)
@@ -21,74 +19,66 @@ class Bencode
       "d#{encoded}e"
     end
   end
+end
 
-  class Parser < Parslet::Parser
-    rule(:expression) do
-      dictionary | list | string | integer
-    end
+class Parser < StringScanner
+  STRING  = /\d+\:/
+  INTEGER = /i/
+  LIST    = /l/
+  DICT    = /d/
 
-    rule(:string) do
-      digit.repeat(1).capture(:size) >>
-        str(':') >>
-        dynamic { |_, context|
-          max = context.captures[:size].to_i
-          max == 0 ?  str("") : any.repeat(max, max)
-        }.as(:string)
-    end
-
-    rule(:integer) do
-      (str('i') >> (str('-').maybe >> match['1-9'] >> digit.repeat | str('0')).as(:integer) >> str('e'))
-    end
-
-    rule(:digit) do
-      match('[0-9]')
-    end
-
-    rule(:list) do
-      (str('l') >> expression.repeat(1) >> str('e')).as(:list)
-    end
-
-    rule(:dictionary) do
-      (str('d') >> (string.as(:key) >> expression.as(:value)).repeat(1) >> str('e')).as(:dictionary)
-    end
-
-    root(:expression)
-  end
-
-  class Transformer < Parslet::Transform
-    rule(:string     => simple(:x))    { StringTransform.new  x }
-    rule(:integer    => simple(:x))    { IntegerTransform.new x }
-    rule(:list       => sequence(:x))  { ArrayTransform.new   x }
-    rule(:dictionary => subtree(:x))   { HashTransform.new    x }
-  end
-
-  StringTransform = Struct.new(:x) do
-    def eval
-      x.to_s
+  def parse
+    case
+    when scan(DICT)    then parse_dict
+    when scan(LIST)    then parse_list
+    when scan(INTEGER) then parse_int
+    when scan(STRING)  then parse_str
+    else
+      raise ArgumentError, "#{rest} invalid expression"
     end
   end
 
-  IntegerTransform = Struct.new(:x) do
-    def eval
-      x.to_i
-    end
-  end
+  private
+  def parse_dict
+    dict = {}
 
-  ArrayTransform = Struct.new(:x) do
-    def eval
-      x.collect { |elem| elem.eval }
-    end
-  end
+    loop do
+      key = parse
+      value = parse
+      dict[key] = value
 
-  HashTransform = Struct.new(:x) do
-    def eval
-      {}.tap do |h|
-        x.each do |hash|
-          key    = hash[:key].eval
-          value  = hash[:value].eval
-          h[key] = value
-        end
+      if peek(1) == 'e'
+        getch && break
       end
     end
+
+    # binding.pry if $debug
+
+    dict
+  end
+
+  def parse_list
+    parsed = []
+
+    loop do
+      parsed << parse
+
+      if peek(1) == 'e'
+        getch && break
+      end
+    end
+
+    parsed
+  end
+
+  def parse_int
+    clean = scan_until(/e/).gsub(/e/, '')
+    raise ArgumentError, "#{clean} is an invalid integer" if clean =~ /\A-?0\d+/
+    clean.to_i
+  end
+
+  def parse_str
+    length = matched.split(":").first.to_i
+    1.upto(length).collect { getch }.join # Use getch to avoid utf-8 problems
   end
 end
