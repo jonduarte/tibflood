@@ -1,7 +1,5 @@
-require 'digest/sha1'
 require 'bencode'
 require 'digest/sha1'
-require 'securerandom'
 require 'uri'
 
 class Tibflood
