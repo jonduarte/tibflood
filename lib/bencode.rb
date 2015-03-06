@@ -39,36 +39,20 @@ class Parser < StringScanner
   end
 
   private
+
   def parse_dict
-    dict = {}
-
-    loop do
-      key = parse
-      value = parse
-      dict[key] = value
-
-      if peek(1) == 'e'
-        getch && break
-      end
-    end
-
-    # binding.pry if $debug
-
-    dict
+    {}.tap { |dict| loop_matching { dict[parse] = parse } }
   end
 
   def parse_list
-    parsed = []
+    [].tap { |list| loop_matching { list << parse } }
+  end
 
+  def loop_matching
     loop do
-      parsed << parse
-
-      if peek(1) == 'e'
-        getch && break
-      end
+      yield
+      getch && break if peek(1) == 'e'
     end
-
-    parsed
   end
 
   def parse_int
